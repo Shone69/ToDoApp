@@ -7,6 +7,7 @@ import Task from './components/Task';
 export default function App() {
   const [task, setTask] = useState();
   const [taskItems, setTaskItems]=useState([]);
+  const [historyItems, setHistoryItems]=useState([]);
 
   const handleAddTask = () =>{
     Keyboard.dismiss(); //remove keyboard when you add new item
@@ -16,8 +17,17 @@ export default function App() {
 
   const completeTask = (index) =>{
     let itemsCopy = [...taskItems];
-    itemsCopy.splice(index,1);
+    let itemsHst = [...historyItems];
+    setHistoryItems([...historyItems,itemsCopy.splice(index,1)]);
     setTaskItems(itemsCopy);
+
+
+  }
+  const restoreTask = (index) =>{
+    let itemsCopy = [...taskItems];
+    let itemsHst = [...historyItems];
+    setTaskItems([...itemsCopy,itemsHst.splice(index,1)]);
+    setHistoryItems(itemsHst);
   }
   return (
     <View style={styles.container}>
@@ -26,8 +36,8 @@ export default function App() {
         <Text style={styles.sectionTitle}>
             Today's tasks
         </Text>
-        <ScrollView style={styles.scrollWrap}>
-        <View style={styles.items}>
+          <ScrollView style={styles.scrollWrap}>
+            <View style={styles.items}>
           {/*this is where tasks will go*/}
         {
           taskItems.map((item, index) =>{
@@ -35,13 +45,20 @@ export default function App() {
                 <TouchableOpacity key={index} onPress={() => completeTask(index)} >
                   <Task text={item}/>
                 </TouchableOpacity>
-            )
-            
-
-          })
-        }
-        </View>
-        </ScrollView>
+              )
+            })}
+            </View>
+          </ScrollView>
+        <ScrollView style={styles.scrollHistory}>
+        {
+          historyItems.map((item, index) =>{
+            return(
+                <TouchableOpacity key={index} onPress={() => restoreTask(index)}>
+                  <Task text={item}/>
+                </TouchableOpacity>
+              )
+            })}
+          </ScrollView>
       </View>
 
       {/* Write a task */}
@@ -65,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'lightblue',
   },
   tasksWrapper :{
-    paddingTop: 80,
+    paddingTop: 40,
     paddingHorizontal : 20,
 
   },
@@ -74,16 +91,19 @@ sectionTitle :{
   fontWeight : 'bold',
 },
 scrollWrap:{
-  height:550,
+  height:'40%',
+  marginBottom:10,
+},
+scrollHistory:{
+  height:'30%',
+backgroundColor:'blue',
 },
 items :{
   padding:5,
-  width: 350,
   marginTop: 20,
   flexDirection:'row',
   flexWrap:'wrap',
   backgroundColor:'red',
-
 
 },
 writeTaskWrapper: {
